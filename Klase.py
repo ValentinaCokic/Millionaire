@@ -14,9 +14,9 @@ class Pitanja(object):
     
     def DohvatiRandomPitanja(self):
         indexi = []
-        while (len(indexi) < 15):
-            i = random.randint(0, len(self.svaPitanja)-1)
-            if(i not in indexi):
+        while len(indexi) < 15:
+            i = random.randint(0, len(self.svaPitanja) - 1)
+            if i not in indexi:
                 indexi.append(i)
 
         for i in indexi:
@@ -60,7 +60,7 @@ class Pitanje(object):
         return self.__tocanOdgovor
 
     def JeTocan(self, ponudeni):
-        if(ponudeni == self.tocanOdgovor):
+        if ponudeni == self.tocanOdgovor:
             return True
         else:
             return False
@@ -73,18 +73,24 @@ class Pitanje(object):
 
 
 class Jocker (object):
-    sviJockeri = ['pitajPubliku', 'zovi', 'polaPola']
+    __sviJockeri = ['pitajPubliku', 'zovi', 'polaPola']
+    __jocker = ""
 
-    def __init__(self, jocker):
-        if(jocker in self.sviJockeri):
+    def __init__(self, jocker = ""):
+        if jocker in self.sviJockeri:
             self.__jocer = jocker
             self.sviJockeri.remove(jocker)
-        else:
-            print('Jocker je vec iskoristen')
+
+    @property
+    def sviJockeri(self):
+        return self.__sviJockeri
 
     @property
     def jocker(self):
         return self.__jocker
+    @jocker.setter
+    def jocker(self, jocker):
+        self.__jocker = jocker
 
     @staticmethod
     def PitajPubliku():
@@ -115,6 +121,7 @@ class Jocker (object):
         rezultat = [tocan]
         odgovori.remove(tocan)
         rezultat.append(random.choice(odgovori))
+        rezultat.sort()
 
         return rezultat
 
@@ -156,7 +163,6 @@ class Igrac(object):
         return self.__class__.__name__ + '(%r)' % (self.__ime)
 
 
-##2. tjedan
 class PrikazIgre():
 
     def PrikaziPocetakIgre(self):
@@ -165,10 +171,10 @@ class PrikazIgre():
         print("*" * 50)
 
     def UnesiIgraca(self):
-        while(True):
+        while True:
             ime = input("Unesi ime: ")
-            if(ime.strip()):
-                print("*"*50)
+            if ime.strip():
+                print("*" * 50)
                 return ime.strip()
 
     def PrikaziPitanje(self, pitanjeObjekt, redniBroj):
@@ -181,7 +187,7 @@ class PrikazIgre():
         print("*" * 50)
 
     def PrikaziPrag(self, iznosPraga):
-        if(iznosPraga == 1000):
+        if iznosPraga == 1000:
             print("*" * 9 + " Prešli ste prvi prag (1000 kn) " + "*" * 9)
         else:
             print("*" * 8 + " Prešli ste drugi prag (32000 kn) " + "*" * 8)
@@ -189,98 +195,120 @@ class PrikazIgre():
 
     def PrikaziOdlukuZaNastavak(self):
         print()
-        while(True):
+        while True:
             print("Upišite 1 ako želite odustati.\nUpišite 2 ako želite koristiti jockera.\nUpišite 3 ako želite odgovoriti.")
             odg = input("Vaša odluka: ")
-            if(odg == "1" or odg == "2" or odg == "3"):
+            if odg == "1" or odg == "2" or odg == "3":
                 return odg
 
-'''
-    def PrikaziUpitZaIzlaz(self):
-        print()
-        while True:
-            odg = input("Želite li odustati? (da/ne) ")
-            if odg.strip().upper()=="DA":
-                return True
-            elif odg.strip().upper()=="NE":
-                return False
-
-    def PrikaziUpitZaJockera(self):
-        print()
-        while True:
-            odg = input("Želite li koristit jockera? (da/ne) ")
-            if odg.strip().upper()=="DA":
-                return True
-            elif odg.strip().upper()=="NE":
-                return False
-    
-    def PonudiMoguceJockere(self, jocker):
+    def PonudiMoguceJockere(self, listaJockera):
         print("Preostali jockeri na izboru: ")
-        for i,j in enumerate(jocker.sviJockeri): 
-            if j=="pitajPubliku":
+        for i in range(len(listaJockera)):
+            if listaJockera[i] == "pitajPubliku":
                 print("{}) >>Pitaj publiku".format(i+1))
-            elif j=="zovi":
+            elif listaJockera[i] == "zovi":
                 print("{}) >>Zovi!".format(i+1))
-            elif j=="polaPola":
+            else:
                 print("{}) >>Pola - pola".format(i+1))
 
-    def korisnikOdgovara(self,ima_jockera,pitanje_objekt):
-        #ovdje treba provjeriti hoce li izabrati jockera, odgovoriti na pitanje ili odustati
-        #ovisno sto ova metoda vrati  u controlu prosljedivati za primjerene situacije
         while True:
-            if ima_jockera:
-                print("Za odabir jockera unesi pripadajući broj")
-            print("Za odgovor na pitanje unesi A, B, C ili D, a za IZLAZ unesi x")
-            print("*"*50)
-            odabir=input(">>Unos: ")
-            if odabir.lower() == pitanje_objekt.tocanOdgovor:
-                #korisnik je tocno odgovorio
-                return "tocan"
-            elif odabir.lower() == "x":
-                #igrac zeli izaci  ->izracunati skupljene novce
-                return "izlaz"
-            elif odabir.lower() == "1" and int(odabir) <= len(Jocker.sviJockeri):
-                odabir=Jocker.sviJockeri[int(odabir)-1]
-                jocker=Jocker(odabir) #ovdje se u initi od jockera automatski brise iz mogucih i postavlja se vrijednost(ime) na jocker varijablu u objektu
-                print("odabrani dzoker 1",jocker.jocker)
-                return jocker
-            elif odabir.lower() == "2" and int(odabir) <= len(Jocker.sviJockeri):
-                odabir=Jocker.sviJockeri[int(odabir)-1]
-                jocker=Jocker(odabir)
-                print("odabrani dzoker 2",jocker.jocker)
-                return jocker
-            elif odabir.lower() == "3" and int(odabir) <= len(Jocker.sviJockeri):
-                odabir=Jocker.sviJockeri[int(odabir)-1]
-                jocker=Jocker(odabir)
-                print("odabrani dzoker 3",jocker.jocker)
-                return jocker
-            elif odabir.lower() !=pitanje_objekt.tocanOdgovor:
-                #krivi odgovor   ->izracunati skupljene novce
-                print("Pogrešan odgovor!")
-                return "pogresan"
-            
-    def prikaziJockerOdgovorPolaPola(self,jocker,pitanje_objekt):
+            odluka = input("Unesite broj jockera kojeg želite koristit: ")
+            try:
+                odluka = int(odluka)
+                if odluka > 0 and odluka <= len(listaJockera):
+                    return listaJockera[odluka-1]
+                else:
+                    pass
+            except ValueError:
+                pass
+
+
+    def PrikaziJockerOdgovor(self, jocker, pitanje_objekt):
+        print()
+        if jocker == "pitajPubliku":
+            oznakaOdgovora = jocker.PitajPubliku()
+            odgovori = [pitanje_objekt.odgovorA, pitanje_objekt.odgovorB, pitanje_objekt.odgovorC, pitanje_objekt.odgovorD]
+            print(pitanje_objekt.pitanje)
+            for oznaka in oznakaOdgovora:
+                if oznaka == "A":
+                    print(">>A: " + odgovori[0])
+                elif oznaka == "B":
+                    print(">>B: " + odgovori[1])
+                elif oznaka == "C":
+                    print(">>C: " + odgovori[2])
+                else:
+                    print(">>D: " + odgovori[3])
+            print("*" * 50)
+        elif jocker == "zovi":
+            pass
+        else:
+            pass
+        
+    def PrikaziJockerOdgovorPolaPola(self, jocker, pitanje_objekt):
         pass
         
-    def prikaziJockerOdgovorPitajPubliku(self,jocker):
+    def PrikaziJockerOdgovorPitajPubliku(self,jocker):
         pass
 
-    def prikaziJockerOdgovorZovi(self,jocker):
+    def PrikaziJockerOdgovorZovi(self,jocker):
         pass
-'''
+
+    def korisnikOdgovara(self, pitanje_objekt):
+        while True:
+            odabir = input(">>Vaš konačan odgovor je: ")
+            if odabir.upper() == "A" or odabir.upper() == "B" or odabir.upper() == "C" or odabir.upper() == "D":
+                if odabir.upper() == pitanje_objekt.tocanOdgovor:
+                    print("Točan odgovor!")
+                    return True
+                else:
+                    print("Pogrešan odgovor!")
+                    return False
 
 
-pi = PrikazIgre()
-pi.PrikaziPocetakIgre()
-pi.UnesiIgraca()
+def main():
+    pi = PrikazIgre()
+    pi.PrikaziPocetakIgre()
+    pi.UnesiIgraca()
 
-svaPitanja = Pitanja()
-svaPitanja.DohvatiRandomPitanja()
+    svaPitanja = Pitanja()
+    svaPitanja.DohvatiRandomPitanja()
+    j = Jocker()
 
-i = 1
-for p in svaPitanja.pitanja15:
-    trenutnoPitanje = Pitanje(p['question'], p['A'], p['B'], p['C'], p['D'], p['answer'])
-    pi.PrikaziPitanje(trenutnoPitanje, i)
-    pi.PrikaziOdlukuZaNastavak()
-    
-    i += 1
+    i = 1
+    for p in svaPitanja.pitanja15:
+        trenutnoPitanje = Pitanje(p['question'], p['A'], p['B'], p['C'], p['D'], p['answer'])
+        pi.PrikaziPitanje(trenutnoPitanje, i)
+        
+        odluka = ""
+        
+        while odluka != "3":
+            odluka = pi.PrikaziOdlukuZaNastavak()
+            if odluka == "1":
+                # igrac je odustao
+                pass
+            elif odluka == "2":
+                # igrac koristi jockera
+                j = pi.PonudiMoguceJockere(j.sviJockeri)
+                print("Izabrani Jocker: " + j)
+                
+
+        # igrac odgovara
+        odgovor = pi.korisnikOdgovara(trenutnoPitanje)
+        if odgovor == False:
+            # igrac je krivo odgovorio
+            break
+        
+        
+        i += 1
+        if i == 2:
+            break
+
+
+if __name__ == "__main__":
+    main()
+
+
+
+
+
+
